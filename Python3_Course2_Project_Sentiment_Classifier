@@ -1,0 +1,68 @@
+
+punctuation_chars = ["'", '"', ",", ".", "!", ":", ";", '#', '@']
+# lists of words to use
+positive_words = []
+with open("positive_words.txt") as pos_f:
+    for lin in pos_f:
+        if lin[0] != ';' and lin[0] != '\n':
+            positive_words.append(lin.strip())
+
+
+negative_words = []
+with open("negative_words.txt") as pos_f:
+    for lin in pos_f:
+        if lin[0] != ';' and lin[0] != '\n':
+            negative_words.append(lin.strip())
+
+
+def strip_punctuation(string):
+    nstring = ""
+    punctuation_chars = ["'", '"', ",", ".", "!", ":", ";", '#', '@']
+    for i in string:
+        if i not in punctuation_chars:
+            nstring += i
+    return nstring
+
+
+def get_neg(string):
+    string = strip_punctuation(string)
+    string = string.lower().split()
+    neg_count = 0
+    for i in string:
+        if i in negative_words:
+            neg_count += 1
+    return neg_count
+
+
+def get_pos(string):
+    string = strip_punctuation(string)
+    string = string.lower().split()
+    pos_count = 0
+    for i in string:
+        if i in positive_words:
+            pos_count += 1
+    return pos_count
+
+
+twitter_results = open("resulting_data.csv","w")
+twitter_results.write("Number of Retweets, Number of Replies, Positive Score, Negative Score, Net Score")
+twitter_results.write("\n")
+
+with open("project_twitter_data.csv") as twitter_data:
+    for line in twitter_data.readlines(15):
+        if len(line.split()) < 2:
+            continue
+        else:
+            line = line.strip()
+            print(line)
+            Number_of_Retweets = line.split(",")[-2]
+            Number_of_Replies = line.split(",")[-1]
+            Positive_Score = get_pos(line)
+            Negative_Score = get_neg(line)
+            Net_Score = Positive_Score - Negative_Score
+            twitter_results.write("{0},{1},{2},{3},{4}".format(Number_of_Retweets, Number_of_Replies, Positive_Score, Negative_Score, Net_Score))
+            twitter_results.write("\n")
+            print(Number_of_Retweets, Number_of_Replies, Positive_Score, Negative_Score, Net_Score)
+
+
+twitter_results.close()
